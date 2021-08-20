@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  ros1_ros2_bridge:
+    image: vive_tracker_ubuntu20:ros2_pose_subscriber
+    container_name: "ros1_ros2_bridge"
+    environment:
+      - ROS_MASTER_URI=http://11.11.3.155:11311
+      - ROS_IP=11.11.3.155  # we're mounting all the network stuff from the host machine (10.10.3.154) into the container through "network_mode: "host"", so we can set the ROS_IP to be that of the host machine
+    command: >
+      bash -c "ros2 run ros1_bridge dynamic_bridge --bridge-all-pairs"
+    network_mode: "host"
+    restart: "no"
+    tty: true
+    stdin_open: true
+    privileged: true
+
+  ros2_subscriber:
+    image: vive_tracker_ubuntu20:ros2_pose_subscriber
+    container_name: "ros2_subscriber"
+    environment:
+      - ROS_MASTER_URI=http://11.11.3.155:11311
+      - ROS_IP=11.11.3.155  # we're mounting all the network stuff from the host machine (10.10.3.154) into the container through "network_mode: "host"", so we can set the ROS_IP to be that of the host machine
+    command: >
+      bash -c "ros2 run vive_tracker_analysis subscriber"
+    network_mode: "host"
+    restart: "no"
+    tty: true
+    stdin_open: true
+    privileged: true
+    depends_on:
+    - ros1_ros2_bridge
